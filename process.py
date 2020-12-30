@@ -199,17 +199,20 @@ def process():
                 state_to_use = parsed_zcrecord.state
 
             filename = out('%s/%s.geojson' % (state_to_use, parsed_zcrecord.postal_code))
-            dirname = os.path.dirname(filename)
-            # See if the output data directory has a subdirectory for this state
-            if not os.path.exists(dirname):
-                os.makedirs(dirname, exist_ok=True)
 
-            if not os.path.isdir(dirname):
-                print(f"Expected dir, got file: {dirname}")
-            else:
-                #print('Writing file %d of %d: %s' % (index, len(parsed_zcrecords), filename))
-                with open(filename, 'w') as f:
-                    f.write(json.dumps(parsed_zcrecord.to_geojson(), indent=4))
+            # Only write if we don't already have it
+            if not os.path.isfile(filename):
+                dirname = os.path.dirname(filename)
+                # See if the output data directory has a subdirectory for this state
+                if not os.path.exists(dirname):
+                    os.makedirs(dirname, exist_ok=True)
+
+                if not os.path.isdir(dirname):
+                    print(f"Expected dir, got file: {dirname}")
+                else:
+                    #print('Writing file %d of %d: %s' % (index, len(parsed_zcrecords), filename))
+                    with open(filename, 'w') as f:
+                        f.write(json.dumps(parsed_zcrecord.to_geojson(), indent=4))
             progress.update(1)
 
 
