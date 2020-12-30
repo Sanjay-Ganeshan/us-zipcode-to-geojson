@@ -187,19 +187,29 @@ def process():
 
         # Write the entries out to disk
         for index, parsed_zcrecord in enumerate(parsed_zcrecords):
+            if len(parsed_zcrecord.state) == 0 or len(parsed_zcrecord.postal_code) == 0:
+                print(f"BAD RECORD: (State: [{parsed_zcrecord.state}]) (Postal Code: [{parsed_zcrecord.postal_code}])")
+            else:
+                filename = out('%s/%s.geojson' % (parsed_zcrecord.state, parsed_zcrecord.postal_code))
+                dirname = os.path.dirname(filename)
+                # See if the output data directory has a subdirectory for this state
+                if not os.path.exists(dirname):
+                    os.makedirs(dirname, exist_ok=True)
 
-            # See if the output data directory has a subdirectory for this state
-            if not os.path.exists(out('%s' % parsed_zcrecord.state)):
-                os.makedirs(out('%s' % parsed_zcrecord.state), exist_ok=True)
-
-            filename = out('%s/%s.geojson' % (parsed_zcrecord.state, parsed_zcrecord.postal_code))
-            #print('Writing file %d of %d: %s' % (index, len(parsed_zcrecords), filename))
-            progress.update(1)
-            with open(filename, 'w') as f:
-                f.write(json.dumps(parsed_zcrecord.to_geojson(), indent=4))
+                if not os.path.isdir(dirname):
+                    print(f"Expected dir, got file: {dirname}")
+                else:
+                    #print('Writing file %d of %d: %s' % (index, len(parsed_zcrecords), filename))
+                    with open(filename, 'w') as f:
+                        f.write(json.dumps(parsed_zcrecord.to_geojson(), indent=4))
+                progress.update(1)
 
 
 if __name__ == '__main__':
     download_all()
+    print("Output directory:")
+    print(outdatapath)
+    print("Source directory:")
+    print(srcdatapath)
     process()
     
